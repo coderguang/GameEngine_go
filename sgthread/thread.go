@@ -1,6 +1,7 @@
 package sgthread
 
 import (
+	"os"
 	"time"
 )
 
@@ -11,4 +12,9 @@ func SleepBySecond(times int) {
 func SleepByMillSecond(times int) {
 	time.Sleep(time.Duration(times) * time.Millisecond)
 
+}
+
+func DelayExit(delaytime int) {
+	SleepBySecond(delaytime)
+	os.Exit(1)
 }
