@@ -85,3 +85,16 @@ func GetFileRawName(path string) (string, error) {
 	}
 	return "", errors.New("error filename,filename=" + filename)
 }
+
+func GetPath(path string) (string, error) {
+	fliterlist := strings.Split(path, "/")
+	if len(fliterlist) > 0 {
+		pathlist := fliterlist[0 : len(fliterlist)-1]
+		str := ""
+		for _, v := range pathlist {
+			str += v + "/"
+		}
+		return str, nil
+	}
+	return "", errors.New("error path,path=" + path)
+}
