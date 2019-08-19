@@ -1,6 +1,7 @@
 package sgfile
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -55,4 +56,32 @@ func AutoMkDir(path string) {
 func Rename(oldPath string, newPath string) error {
 	err := os.Rename(oldPath, newPath)
 	return err
+}
+
+func GetFileName(path string) (string, error) {
+	fliterlist := strings.Split(path, "/")
+	if len(fliterlist) > 0 {
+		return fliterlist[len(fliterlist)-1], nil
+	}
+	return "", errors.New("error path,path=" + path)
+}
+
+func GetFileRawName(path string) (string, error) {
+	filename, err := GetFileName(path)
+	if err != nil {
+		return "", err
+	}
+	fliterlist := strings.Split(path, ".")
+	if len(fliterlist) > 0 {
+
+		str := ""
+		for k, v := range fliterlist {
+			if k == len(fliterlist)-1 {
+				continue
+			}
+			str += v
+		}
+		return str, nil
+	}
+	return "", errors.New("error filename,filename=" + filename)
 }
