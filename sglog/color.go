@@ -16,35 +16,35 @@ const (
 	TextWhite
 )
 
-func Black(str string) string {
+func black(str string) string {
 	return textColor(TextBlack, str)
 }
 
-func Red(str string) string {
+func red(str string) string {
 	return textColor(TextRed, str)
 }
 
-func Green(str string) string {
+func green(str string) string {
 	return textColor(TextGreen, str)
 }
 
-func Yellow(str string) string {
+func yellow(str string) string {
 	return textColor(TextYellow, str)
 }
 
-func Blue(str string) string {
+func blue(str string) string {
 	return textColor(TextBlue, str)
 }
 
-func Magenta(str string) string {
+func magenta(str string) string {
 	return textColor(TextMagenta, str)
 }
 
-func Cyan(str string) string {
+func cyan(str string) string {
 	return textColor(TextCyan, str)
 }
 
-func White(str string) string {
+func white(str string) string {
 	return textColor(TextWhite, str)
 }
 

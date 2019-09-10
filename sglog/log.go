@@ -136,13 +136,13 @@ func getLevelStr(level int) string {
 	str := "unkonw"
 	switch level {
 	case debugLevel:
-		str = Yellow(printDebugLevel)
+		str = yellow(printDebugLevel)
 	case infoLevel:
-		str = Green(printInfoLevel)
+		str = green(printInfoLevel)
 	case errorLevel:
-		str = Red(printErrorLevel)
+		str = red(printErrorLevel)
 	case fatalLevel:
-		str = Red(printFatalLevel)
+		str = red(printFatalLevel)
 	}
 	return str
 }
