@@ -16,14 +16,15 @@ const (
 )
 
 const (
-	FORMAT_TIME_NORMAL = "2006-01-02 15:04:05"
-	FORMAT_TIME_LOG    = "2006/01/02 15:04:05.000"
-	FORMAT_TIME_YEAR   = "2006"
-	FORMAT_TIME_MONTH  = "01"
-	FORMAT_TIME_DAY    = "02"
-	FORMAT_TIME_HOUR   = "15"
-	FORMAT_TIME_MINUTE = "04"
-	FORMAT_TIME_SECOND = "05"
+	FORMAT_TIME_NORMAL          = "2006-01-02 15:04:05"
+	FORMAT_TIME_LOG             = "2006/01/02 15:04:05.000"
+	FORMAT_TIME_RFC_3339_SIMPLE = "2006-01-02T15:04:05"
+	FORMAT_TIME_YEAR            = "2006"
+	FORMAT_TIME_MONTH           = "01"
+	FORMAT_TIME_DAY             = "02"
+	FORMAT_TIME_HOUR            = "15"
+	FORMAT_TIME_MINUTE          = "04"
+	FORMAT_TIME_SECOND          = "05"
 )
 
 type DateTime = time.Time
@@ -97,4 +98,8 @@ func SecondString(dateTime *DateTime) string {
 func ParseInLocation(format string, timestr string) (DateTime, error) {
 	dt, err := time.ParseInLocation(format, timestr, globalTimeLocation)
 	return dt, err
+}
+
+func GetTimeZone() *time.Location {
+	return globalTimeLocation
 }

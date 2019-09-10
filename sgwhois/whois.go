@@ -39,13 +39,13 @@ func (data *Whois) IsEqual(other *Whois) bool {
 
 func ShowWhoisInfo(data *Whois) {
 	sglog.Info("==================start show=============")
-	sglog.Debug("name:%s,status:%d\n", data.Domain, data.IsRegist)
-	sglog.Debug("create dt:%s", sgtime.NormalString(data.CreateDt))
-	sglog.Debug("update dt:%s", sgtime.NormalString(data.UpdateDt))
-	sglog.Debug("expiry dt:%s", sgtime.NormalString(data.ExpiryDt))
-	sglog.Debug("raw create dt:%s", data.CreateDtStr)
-	sglog.Debug("raw update dt:%s", data.UpdateDtStr)
-	sglog.Debug("raw expiry dt:%s", data.ExpiryDtStr)
+	sglog.Debug("name:", data.Domain, ",status:", data.IsRegist, "\n")
+	sglog.Debug("create dt:", sgtime.NormalString(data.CreateDt))
+	sglog.Debug("update dt", sgtime.NormalString(data.UpdateDt))
+	sglog.Debug("expiry dt:", sgtime.NormalString(data.ExpiryDt))
+	sglog.Debug("raw create dt:", data.CreateDtStr)
+	sglog.Debug("raw update dt:", data.UpdateDtStr)
+	sglog.Debug("raw expiry dt:", data.ExpiryDtStr)
 	sglog.Info("==================end show=============")
 }
 
@@ -70,7 +70,7 @@ func GetWhoisInfo(domain string) (*Whois, error) {
 	parts = strings.Split(domain, ".")
 	if len(parts) < 2 {
 		result.IsRegist = SG_WHOIS_STATUS_CHECK_FAILD
-		sglog.Error("Domain(%s) name is wrong!%s", domain)
+		sglog.Error("Domain(", domain, ") name is wrong!")
 		return result, errors.New("domain is wrong")
 	}
 	name = parts[len(parts)-2]
@@ -78,7 +78,7 @@ func GetWhoisInfo(domain string) (*Whois, error) {
 	server, ok := servers[zone]
 	if !ok {
 		result.IsRegist = SG_WHOIS_STATUS_CHECK_FAILD
-		sglog.Error("no such zone server,zone:%s", zone)
+		sglog.Error("no such zone server,zone:", zone)
 		return result, errors.New("no such zone server")
 	}
 	connection, err := net.DialTimeout("tcp", net.JoinHostPort(server, "43"), time.Second*5)
@@ -87,11 +87,11 @@ func GetWhoisInfo(domain string) (*Whois, error) {
 	}
 	if err != nil {
 		result.IsRegist = SG_WHOIS_STATUS_CHECK_FAILD
-		sglog.Error("connect to dns server error: %s", err)
+		sglog.Error("connect to dns server error:", err)
 		return result, errors.New("connect to dns server error")
 	}
 	connection.Write([]byte("" + domain + "\r\n"))
-	sglog.Info("domain:%s,wait for get domainInfo", domain)
+	sglog.Info("domain:", domain, ",wait for get domainInfo")
 	//超过30s即超时
 	connection.SetReadDeadline(time.Now().Add(time.Second * 30))
 
@@ -101,16 +101,16 @@ func GetWhoisInfo(domain string) (*Whois, error) {
 	//buffer, err = ioutil.ReadAll(connection)
 	if err != nil {
 		result.IsRegist = SG_WHOIS_STATUS_CHECK_FAILD
-		sglog.Error("%s connection readAll error,%s", domain, err)
+		sglog.Error(domain, " connection readAll error", err)
 		return result, errors.New(" connection readAll error")
 	}
 	if readNum <= 0 {
 		result.IsRegist = SG_WHOIS_STATUS_CHECK_FAILD
-		sglog.Error("%s connection readAll error,buffer size =0", domain)
+		sglog.Error(domain, " connection readAll error,buffer size =0")
 		return result, errors.New("connection readAll error,buffer size =0")
 	}
 
-	sglog.Info("domain:%s,read respond success", domain)
+	sglog.Info("domain:", domain, ",read respond success")
 	result.Raw = buf.String()
 	result.Domain = domain
 	result.Zone = zone
@@ -122,7 +122,7 @@ func GetWhoisInfo(domain string) (*Whois, error) {
 
 func ParseWhois(info *Whois) {
 	if SG_WHOIS_STATUS_CHECK_FAILD == info.IsRegist {
-		sglog.Info("fail to check domain:%s", info.Domain)
+		sglog.Info("fail to check domain:", info.Domain)
 		return
 	}
 
@@ -176,23 +176,19 @@ func ParseWhoisCom(info *Whois) {
 	}
 
 	info.OldExpiryDtStr = info.ExpiryDtStr
-	tmpCreateDtStr := strings.Replace(info.CreateDtStr, "T", " ", -1)
-	tmpUpdateDtStr := strings.Replace(info.UpdateDtStr, "T", " ", -1)
-	tmpExpiryDtStr := strings.Replace(info.ExpiryDtStr, "T", " ", -1)
+	createDt, _ := time.Parse(sgtime.FORMAT_TIME_RFC_3339_SIMPLE, info.CreateDtStr)
+	updateDt, _ := time.Parse(sgtime.FORMAT_TIME_RFC_3339_SIMPLE, info.UpdateDtStr)
+	expiryDt, _ := time.Parse(sgtime.FORMAT_TIME_RFC_3339_SIMPLE, info.ExpiryDtStr)
 
-	createDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpCreateDtStr)
-	if err != nil {
-		info.CreateDt = &createDt
-	}
-	updateDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpUpdateDtStr)
-	if err != nil {
-		info.UpdateDt = &updateDt
-	}
-	expiryDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpExpiryDtStr)
-	if err != nil {
-		info.ExpiryDt = &expiryDt
-	}
+	createDt = createDt.In(sgtime.GetTimeZone())
+	updateDt = updateDt.In(sgtime.GetTimeZone())
+	expiryDt = expiryDt.In(sgtime.GetTimeZone())
 
+	info.CreateDt = &createDt
+	info.UpdateDt = &updateDt
+	info.ExpiryDt = &expiryDt
+
+	info.CreateDt.In(sgtime.GetTimeZone())
 }
 
 func ParseWhoisCn(info *Whois) {
@@ -203,7 +199,7 @@ func ParseWhoisCn(info *Whois) {
 	}
 
 	if strings.Contains(info.Raw, "the Domain Name you apply can not be registered online") {
-		sglog.Error("info raw %s,name=%s", info.Raw, info.Domain)
+		sglog.Error("info raw ", info.Raw, ",name=", info.Domain)
 		info.IsRegist = SG_WHOIS_STATUS_LIMIT_BY_GOVERNMENT
 		return
 	}
