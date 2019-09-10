@@ -3,6 +3,7 @@ package sglog
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -39,24 +40,25 @@ type LogData struct {
 	data  string
 }
 
-func NewLogData(lv int, format string, a ...interface{}) *LogData {
+func NewLogData(lv int, a ...interface{}) *LogData {
 	logData := new(LogData)
 	logData.level = lv
 	logData.dt = sgtime.New()
-	logData.data = fmt.Sprintf(format, a...)
+	logData.data = fmt.Sprintln(a...)
 	return logData
 }
 
 type Logger struct {
-	level     int
-	baseFile  *os.File
-	console   bool
-	dt        *sgtime.DateTime
-	pathname  string
-	flag      int
-	buff      chan *LogData
-	onceClose sync.Once
-	isStop    bool
+	level        int
+	baseFile     *os.File
+	console      bool
+	dt           *sgtime.DateTime
+	pathname     string
+	flag         int
+	chanBuff     chan *LogData
+	onceClose    sync.Once
+	isStop       bool
+	chanStopFlag chan bool
 }
 
 func NewLogger(strLevel string, pathname string, flag int, isConsole bool) (*Logger, error) {
@@ -107,17 +109,19 @@ func NewLogger(strLevel string, pathname string, flag int, isConsole bool) (*Log
 }
 
 func (logger *Logger) InitChan() {
-	logger.buff = make(chan *LogData, 1000)
+	logger.chanBuff = make(chan *LogData, 1000)
+	logger.chanStopFlag = make(chan bool)
 }
 
 func LoopLogServer() {
 	for {
-		logData := <-globalLogger.buff
+		logData := <-globalLogger.chanBuff
 		checkAndSwapLogger(globalLogger)
 		globalLogger.Write(logData)
-		if globalLogger.isStop && len(globalLogger.buff) <= 0 {
+		if globalLogger.isStop && len(globalLogger.chanBuff) <= 0 {
 			globalLogger.onceClose.Do(func() {
-				close(globalLogger.buff)
+				close(globalLogger.chanBuff)
+				globalLogger.chanStopFlag <- true
 			})
 			return
 		}
@@ -125,11 +129,14 @@ func LoopLogServer() {
 }
 
 func (logger *Logger) AddData(logData *LogData) {
-	logger.buff <- logData
+	logger.chanBuff <- logData
 }
 
 func (logger *Logger) Close() {
 	logger.isStop = true
+	//wait chan flag set
+	<-logger.chanStopFlag
+	close(logger.chanStopFlag)
 }
 
 func getLevelStr(level int) string {
@@ -165,10 +172,10 @@ func (logger *Logger) Write(logData *LogData) {
 	if logData.level < logger.level {
 		return
 	}
-	str := sgtime.LogString(logData.dt) + " " + getLevelStrRaw(logData.level) + " " + logData.data + "\n"
+	str := sgtime.LogString(logData.dt) + " " + getLevelStrRaw(logData.level) + " " + logData.data
 	logger.baseFile.WriteString(str)
 	if logger.console {
-		strEx := sgtime.LogString(logData.dt) + " " + getLevelStr(logData.level) + " " + logData.data + "\n"
+		strEx := sgtime.LogString(logData.dt) + " " + getLevelStr(logData.level) + " " + logData.data
 		fmt.Print(strEx)
 	}
 	if logData.level == fatalLevel {
@@ -216,34 +223,38 @@ func checkAndSwapLogger(logger *Logger) {
 	}
 }
 
-func Debug(format string, a ...interface{}) {
+func Debug(a ...interface{}) {
 	if globalLogger.isStop {
+		log.Println("sglog.Debug", a)
 		return
 	}
-	logData := NewLogData(debugLevel, format, a...)
+	logData := NewLogData(debugLevel, a...)
 	globalLogger.AddData(logData)
 }
 
-func Info(format string, a ...interface{}) {
+func Info(a ...interface{}) {
 	if globalLogger.isStop {
+		log.Println("sglog.Info", a)
 		return
 	}
-	logData := NewLogData(infoLevel, format, a...)
+	logData := NewLogData(infoLevel, a...)
 	globalLogger.AddData(logData)
 }
 
-func Error(format string, a ...interface{}) {
+func Error(a ...interface{}) {
 	if globalLogger.isStop {
+		log.Println("sglog.Error", a)
 		return
 	}
-	logData := NewLogData(errorLevel, format, a...)
+	logData := NewLogData(errorLevel, a...)
 	globalLogger.AddData(logData)
 }
 
-func Fatal(format string, a ...interface{}) {
+func Fatal(a ...interface{}) {
 	if globalLogger.isStop {
+		log.Println("sglog.Fatal", a)
 		return
 	}
-	logData := NewLogData(fatalLevel, format, a...)
+	logData := NewLogData(fatalLevel, a...)
 	globalLogger.AddData(logData)
 }

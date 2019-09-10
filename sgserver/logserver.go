@@ -16,13 +16,14 @@ func StartLogServer(level string, path string, flag int, isConsole bool) {
 
 	go sglog.LoopLogServer()
 
-	sglog.Info("log server init complete,path=%s,level=%s", path, level)
+	sglog.Info("log server init complete,path=", path, "level=", level)
 	sgthread.SleepBySecond(2)
 }
 
 func StopLogServer() {
-	watiTime := 5
-	sglog.Info("log server will stop after %ds", watiTime)
-	sgthread.SleepBySecond(watiTime)
+	// watiTime := 5
+	// sglog.Info("log server will stop after ", watiTime, "s")
+	// sgthread.SleepBySecond(watiTime)
+	sglog.Info("logger stop....")
 	sglog.CloseGlobalLogger()
 }

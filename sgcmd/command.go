@@ -36,7 +36,7 @@ func exitCmd(cmdstr []string) {
 func RegistCmd(cmd string, help string, funcPtr func(cmdstr []string)) bool {
 
 	if _, ok := cmdMap[cmd]; ok {
-		sglog.Error("cmd %s already be regist", cmd)
+		sglog.Error("cmd ", cmd, " already be regist")
 		return false
 	}
 
@@ -54,7 +54,7 @@ func RegistCmd(cmd string, help string, funcPtr func(cmdstr []string)) bool {
 func runCmd(cmd string, cmdstr []string) bool {
 	data, ok := cmdMap[cmd]
 	if !ok {
-		sglog.Error("cmd %s not regist", cmd)
+		sglog.Error("cmd ", cmd, " not regist")
 		return false
 	}
 	data.FuncPtr(cmdstr)
@@ -68,7 +68,7 @@ func printHelp() {
 	for _, v := range cmdKeys {
 		cmd, ok := cmdMap[v]
 		if ok {
-			sglog.Debug("%s", cmd.Help)
+			sglog.Debug(cmd.Help)
 		}
 	}
 }
@@ -77,7 +77,7 @@ func StartCmdWaitInput() bool {
 	sglog.Info("\n====please input your cmd====")
 	var str string
 	fmt.Scanln(&str)
-	sglog.Debug("input data is %s ===========>", str)
+	sglog.Debug("input data is ", str, " ===========>")
 
 	cmdInputData := []string{}
 	err := json.Unmarshal([]byte(str), &cmdInputData)
