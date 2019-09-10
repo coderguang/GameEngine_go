@@ -3,7 +3,7 @@ GameEngine_go
 
 [![Build Status](https://travis-ci.org/coderguang/GameEngine_go.svg?branch=master)](https://travis-ci.org/coderguang/GameEngine_go)
 ![](https://img.shields.io/badge/language-golang-orange.svg)
-[![codebeat badge](https://codebeat.co/badges/a4d5f264-4add-4c65-b855-6a5b474da06e)](https://codebeat.co/projects/github-com-coderguang-gameengine_go-master)
+[![codebeat badge](https://codebeat.co/badges/02773b19-c10d-4328-92db-1cd98b567934)](https://codebeat.co/projects/github-com-coderguang-gameengine_go-master)
 [![](https://img.shields.io/badge/wp-@royalchen-blue.svg)](https://www.royalchen.com)
 
 
