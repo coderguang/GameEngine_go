@@ -165,10 +165,10 @@ func (logger *Logger) Write(logData *LogData) {
 	if logData.level < logger.level {
 		return
 	}
-	str := logData.dt.LogString() + " " + getLevelStrRaw(logData.level) + " " + logData.data + "\n"
+	str := sgtime.LogString(logData.dt) + " " + getLevelStrRaw(logData.level) + " " + logData.data + "\n"
 	logger.baseFile.WriteString(str)
 	if logger.console {
-		strEx := logData.dt.LogString() + " " + getLevelStr(logData.level) + " " + logData.data + "\n"
+		strEx := sgtime.LogString(logData.dt) + " " + getLevelStr(logData.level) + " " + logData.data + "\n"
 		fmt.Print(strEx)
 	}
 	if logData.level == fatalLevel {
@@ -192,7 +192,7 @@ func CloseGlobalLogger() {
 
 func checkAndSwapLogger(logger *Logger) {
 	now := sgtime.New()
-	if logger.dt.GetTotalDay() != now.GetTotalDay() {
+	if sgtime.GetTotalDay(logger.dt) != sgtime.GetTotalDay(now) {
 		if globalLogger.baseFile != nil {
 			globalLogger.baseFile.Close()
 		}

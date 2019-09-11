@@ -30,7 +30,7 @@ type Whois struct {
 }
 
 func (data *Whois) IsEqual(other *Whois) bool {
-	if data.ExpiryDt.GetTotalSecond() == other.ExpiryDt.GetTotalSecond() {
+	if sgtime.GetTotalSecond(data.ExpiryDt) == sgtime.GetTotalSecond(other.ExpiryDt) {
 		return true
 	} else {
 		return false
@@ -40,9 +40,9 @@ func (data *Whois) IsEqual(other *Whois) bool {
 func ShowWhoisInfo(data *Whois) {
 	sglog.Info("==================start show=============")
 	sglog.Debug("name:%s,status:%d\n", data.Domain, data.IsRegist)
-	sglog.Debug("create dt:%s", data.CreateDt.NormalString())
-	sglog.Debug("update dt:%s", data.UpdateDt.NormalString())
-	sglog.Debug("expiry dt:%s", data.ExpiryDt.NormalString())
+	sglog.Debug("create dt:%s", sgtime.NormalString(data.CreateDt))
+	sglog.Debug("update dt:%s", sgtime.NormalString(data.UpdateDt))
+	sglog.Debug("expiry dt:%s", sgtime.NormalString(data.ExpiryDt))
 	sglog.Debug("raw create dt:%s", data.CreateDtStr)
 	sglog.Debug("raw update dt:%s", data.UpdateDtStr)
 	sglog.Debug("raw expiry dt:%s", data.ExpiryDtStr)
@@ -180,14 +180,18 @@ func ParseWhoisCom(info *Whois) {
 	tmpUpdateDtStr := strings.Replace(info.UpdateDtStr, "T", " ", -1)
 	tmpExpiryDtStr := strings.Replace(info.ExpiryDtStr, "T", " ", -1)
 
-	info.CreateDt.Parse(tmpCreateDtStr, sgtime.FORMAT_TIME_NORMAL)
-	info.UpdateDt.Parse(tmpUpdateDtStr, sgtime.FORMAT_TIME_NORMAL)
-	info.ExpiryDt.Parse(tmpExpiryDtStr, sgtime.FORMAT_TIME_NORMAL)
-	//时区+8
-	h := 8 * 60 * 60
-	info.CreateDt.Add(h)
-	info.UpdateDt.Add(h)
-	info.ExpiryDt.Add(h)
+	createDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpCreateDtStr)
+	if err != nil {
+		info.CreateDt = &createDt
+	}
+	updateDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpUpdateDtStr)
+	if err != nil {
+		info.UpdateDt = &updateDt
+	}
+	expiryDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, tmpExpiryDtStr)
+	if err != nil {
+		info.ExpiryDt = &expiryDt
+	}
 
 }
 
@@ -228,9 +232,17 @@ func ParseWhoisCn(info *Whois) {
 			continue
 		}
 	}
-	info.CreateDt.Parse(info.CreateDtStr, sgtime.FORMAT_TIME_NORMAL)
-	info.UpdateDt = info.CreateDt
-	info.ExpiryDt.Parse(info.ExpiryDtStr, sgtime.FORMAT_TIME_NORMAL)
+
+	createDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, info.CreateDtStr)
+	if err != nil {
+		info.CreateDt = &createDt
+		info.UpdateDt = &createDt
+	}
+
+	expiryDt, err := time.Parse(sgtime.FORMAT_TIME_NORMAL, info.ExpiryDtStr)
+	if err != nil {
+		info.ExpiryDt = &expiryDt
+	}
 }
 
 func IsHightValueDomainByName(domain string) bool {
