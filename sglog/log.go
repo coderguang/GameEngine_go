@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/coderguang/GameEngine_go/sgerror"
 	"github.com/coderguang/GameEngine_go/sgfile"
 	"github.com/coderguang/GameEngine_go/sgtime"
 )
@@ -134,9 +133,12 @@ func (logger *Logger) AddData(logData *LogData) {
 
 func (logger *Logger) Close() {
 	logger.isStop = true
-	//wait chan flag set
 	<-logger.chanStopFlag
 	close(logger.chanStopFlag)
+	if logger.baseFile != nil {
+		logger.baseFile.Close()
+	}
+	logger.baseFile = nil
 }
 
 func getLevelStr(level int) string {
@@ -177,9 +179,6 @@ func (logger *Logger) Write(logData *LogData) {
 	if logger.console {
 		strEx := sgtime.LogString(logData.dt) + " " + getLevelStr(logData.level) + " " + logData.data
 		fmt.Print(strEx)
-	}
-	if logData.level == fatalLevel {
-		os.Exit(sgerror.GameEngine_Fatal_Log)
 	}
 }
 

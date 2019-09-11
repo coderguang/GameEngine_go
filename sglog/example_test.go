@@ -23,9 +23,9 @@ func Test_LogPackage(t *testing.T) {
 	Swap(logger)
 	go LoopLogServer()
 	Debug("hello,debug")
-	Info("hello info")
-	Error("hello error")
-	Fatal("hello fatal")
+	// Info("hello info")
+	// Error("hello error")
+	// Fatal("hello fatal")
 	CloseGlobalLogger()
 	t.Log("logger test ok")
 }
