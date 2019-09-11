@@ -44,5 +44,4 @@ func main() {
 
 	sgcmd.StartCmdWaitInputLoop()
 
-	sgserver.StopLogServer()
 }

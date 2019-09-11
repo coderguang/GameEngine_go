@@ -27,7 +27,7 @@ var cmdMap map[string]CmdData
 var cmdKeys []string
 
 func exitCmd(cmdstr []string) {
-	sglog.Info("exit the system")
+	sglog.Info("exit the system by cmd")
 	sgserver.StopLogServer()
 	sgthread.SleepBySecond(3)
 	os.Exit(0)
