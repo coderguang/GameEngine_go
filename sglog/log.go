@@ -141,6 +141,16 @@ func (logger *Logger) Close() {
 	logger.baseFile = nil
 }
 
+func IsStop() bool {
+	if globalLogger == nil {
+		return true
+	}
+	if globalLogger.isStop {
+		return true
+	}
+	return false
+}
+
 func getLevelStr(level int) string {
 	str := "unkonw"
 	switch level {

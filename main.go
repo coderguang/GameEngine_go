@@ -18,7 +18,9 @@ func main() {
 
 	//sgtime.InitTimeLocation("America/Los_Angeles")
 
-	sgserver.StartLogServer("debug", "./log/", log.LstdFlags, true)
+	//sgserver.StartLogServer("debug", "./log/", log.LstdFlags, true)
+
+	sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./log/", log.LstdFlags, true)
 
 	// for {
 	// 	sglog.Info("test data")
