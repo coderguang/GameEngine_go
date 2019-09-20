@@ -6,7 +6,7 @@ import (
 )
 
 func Test_NewLog(t *testing.T) {
-	logData := NewLogData(debugLevel, "hello", "hi")
+	logData := newLogData(debugLevel, "hello", "hi")
 	if logData != nil {
 		t.Log("new log data ok")
 	} else {
@@ -16,12 +16,10 @@ func Test_NewLog(t *testing.T) {
 
 func Test_LogPackage(t *testing.T) {
 
-	logger, err := NewLogger("debug", "../../log/", log.LstdFlags, true)
+	err := NewLogger("debug", "../../log/", log.LstdFlags, true)
 	if err != nil {
 		t.Error("init logger failed")
 	}
-	Swap(logger)
-	go LoopLogServer()
 	Debug("hello,debug")
 	// Info("hello info")
 	// Error("hello error")
@@ -31,7 +29,7 @@ func Test_LogPackage(t *testing.T) {
 }
 
 func BenchmarkLogger(b *testing.B) {
-	logger, err := NewLogger("debug", "../../log/", log.LstdFlags, true)
+	err := NewLogger("debug", "../../log/", log.LstdFlags, true)
 	if err != nil {
 		return
 	}
@@ -39,9 +37,6 @@ func BenchmarkLogger(b *testing.B) {
 	defer func() {
 		CloseGlobalLogger()
 	}()
-
-	Swap(logger)
-	go LoopLogServer()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		Debug("hello,debug", i)

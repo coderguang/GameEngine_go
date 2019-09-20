@@ -54,15 +54,11 @@ func (server *ServerLog) Start(startFlag chan bool, a ...interface{}) {
 		}
 	}
 
-	logger, err := sglog.NewLogger(level, path, flag, isConsole)
+	err := sglog.NewLogger(level, path, flag, isConsole)
 
 	if err != nil {
 		return
 	}
-	sglog.Swap(logger)
-
-	go sglog.LoopLogServer()
-
 	sglog.Info("log server init complete,path=", path, "level=", level)
 
 }
