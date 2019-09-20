@@ -12,6 +12,7 @@ type MailCfg struct {
 	Password string `json:"pwd"`
 	SMTP     string `json:"smtp"`
 	Port     string `json:"port"`
+	UseTLS   bool   `json:"useTLS"`
 }
 
 //单封邮件内容

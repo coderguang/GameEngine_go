@@ -1,7 +1,10 @@
 package sgmail
 
 import (
+	"crypto/tls"
 	"errors"
+	"log"
+	"net"
 	"net/smtp"
 	"strings"
 	"sync"
@@ -96,10 +99,18 @@ func (sender *mailSender) plainAuth() {
 func (sender *mailSender) loopSendMail() {
 	sender.status = sgdef.DefServerStatusRunning
 	for data := range sender.chanMailList {
-		if err := sender.send(data); err != nil {
-			sglog.Error("send mail failed,err:", err, "data", data)
+		if sender.cfg.UseTLS {
+			if err := sender.sendMailUsingTLS(data); err != nil {
+				sglog.Error("send mail failed,err:", err, "data", data)
+			} else {
+				sglog.Info("send mail ok,data", data)
+			}
 		} else {
-			sglog.Info("send mail ok,data", data)
+			if err := sender.send(data); err != nil {
+				sglog.Error("send mail failed,err:", err, "data", data)
+			} else {
+				sglog.Info("send mail ok,data", data)
+			}
 		}
 	}
 }
@@ -110,4 +121,69 @@ func (sender *mailSender) send(data *mailData) error {
 	host := sender.cfg.SMTP + ":" + sender.cfg.Port
 	err := smtp.SendMail(host, sender.auth, sender.cfg.User, data.toMailList, msg)
 	return err
+}
+
+//return a smtp client
+func dail(addr string) (*smtp.Client, error) {
+	conn, err := tls.Dial("tcp", addr, nil)
+	if err != nil {
+		sglog.Error("Dialing Error:", err)
+		return nil, err
+	}
+	//分解主机端口字符串
+	host, _, _ := net.SplitHostPort(addr)
+	return smtp.NewClient(conn, host)
+}
+
+func (sender *mailSender) sendMailUsingTLS(data *mailData) error {
+	msg := []byte("To: " + strings.Join(data.toMailList, ",") + "\r\nFrom: " + sender.cfg.Name +
+		"<" + sender.cfg.User + ">\r\nSubject: " + data.subject + "\r\n" + content_type + "\r\n\r\n" + data.body)
+	addr := sender.cfg.SMTP + ":" + sender.cfg.Port
+
+	//参考net/smtp的func SendMail()
+	//使用net.Dial连接tls(ssl)端口时,smtp.NewClient()会卡住且不提示err
+	//len(to)>1时,to[1]开始提示是密送
+
+	c, err := dail(addr)
+	if err != nil {
+		sglog.Error("Create smpt client error:", err)
+		return err
+	}
+	defer c.Close()
+
+	if sender.auth != nil {
+		if ok, _ := c.Extension("AUTH"); ok {
+			if err = c.Auth(sender.auth); err != nil {
+				log.Println("Error during AUTH", err)
+				return err
+			}
+		}
+	}
+
+	if err = c.Mail(sender.cfg.User); err != nil {
+		return err
+	}
+
+	for _, addr := range data.toMailList {
+		if err = c.Rcpt(addr); err != nil {
+			return err
+		}
+	}
+
+	w, err := c.Data()
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
+
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+
+	return c.Quit()
 }
