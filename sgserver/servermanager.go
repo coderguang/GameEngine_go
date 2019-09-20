@@ -5,6 +5,8 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/coderguang/GameEngine_go/sgthread"
+
 	"github.com/coderguang/GameEngine_go/sglog"
 )
 
@@ -100,6 +102,7 @@ func addServerToList(startFlag chan bool, server Server) {
 		} else {
 			log.Println("log server start error,please check")
 		}
+		sgthread.SleepBySecond(2)
 		panic(errors.New("server start error type is " + strconv.Itoa(int(server.Type()))))
 	}
 }
