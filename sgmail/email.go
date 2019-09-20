@@ -1,13 +1,46 @@
 package sgmail
 
 import (
+	"errors"
 	"net/smtp"
 	"strings"
+
+	"github.com/coderguang/GameEngine_go/sgdef"
 )
 
-func PlainAuth(identify string, username string, passwd string, host string) *smtp.Auth {
-	auth := smtp.PlainAuth(identify, username, passwd, host)
-	return &auth
+var (
+	globalMailSender *mailSender
+)
+
+type mailSender struct {
+	auth         smtp.Auth
+	cfg          *mailCfg
+	chanMailList chan *mailData
+	status       sgdef.DefServerStatus
+}
+
+func NewSender(cfg *mailCfg) error {
+	if globalMailSender != nil {
+		return errors.New("mail sender already init")
+	}
+	globalMailSender = new(mailSender)
+	globalMailSender.cfg = cfg
+	globalMailSender.chanMailList = make(chan *mailData, 100)
+	globalMailSender.status = sgdef.DefServerStatusInit
+
+	return nil
+}
+
+func (sender *mailSender) PlainAuth() {
+	sender.auth = smtp.PlainAuth("", sender.cfg.User, sender.cfg.Password, sender.cfg.SMTP)
+}
+
+func (sender *mailSender) loopSendMail() {
+	sender.status = sgdef.DefServerStatusRunning
+	for {
+		data := <-sender.chanMailList
+
+	}
 }
 
 func SendMail(host string, auth *smtp.Auth, toMailList []string, subject string, fromNickName string, fromEmail string, body string) error {

@@ -15,6 +15,15 @@ func init() {
 }
 
 func StartServer(serverType ServerType, a ...interface{}) {
+
+	for _, v := range serverList {
+		if v.Type() == serverType && v.IsRunning() {
+			sglog.Error("server had already running,type is", v.Type())
+			return
+		}
+
+	}
+
 	startFlag := make(chan bool)
 	switch serverType {
 	case ServerTypeLog:
@@ -35,8 +44,8 @@ func StopServer(serverType ServerType, a ...interface{}) error {
 
 	for _, v := range serverList {
 		if v.Type() == serverType {
-			if v.IsStop() {
-				return errors.New("this server already stop,type is " + serverTypeStr)
+			if v.IsStop() || !v.IsRunning() {
+				return errors.New("this server already stop or not running,type is " + serverTypeStr)
 			} else {
 				go v.Stop(stopFlag, a...)
 				return nil
@@ -49,6 +58,10 @@ func StopServer(serverType ServerType, a ...interface{}) error {
 func StopAllServer() {
 	for _, v := range serverList {
 		if v.Type() == ServerTypeLog {
+			continue
+		}
+		if v.IsStop() || !v.IsRunning() {
+			sglog.Error("stop server error not running or already stop,type=", v.Type())
 			continue
 		}
 		if err := StopServer(v.Type()); err != nil {
@@ -66,6 +79,7 @@ func StopAllServer() {
 }
 
 func addServerToList(startFlag chan bool, server Server) {
+
 	startResult := <-startFlag
 	if startResult {
 		serverList = append(serverList, server)

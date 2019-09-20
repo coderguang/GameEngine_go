@@ -49,7 +49,7 @@ func NewLogger(strLevel string, pathname string, flag int, isConsole bool) error
 	globalLogger.level = level
 	globalLogger.pathname = pathname
 	globalLogger.flag = flag
-	globalLogger.initChan()
+	globalLogger.chanBuff = make(chan *logData, 1000)
 	globalLogger.status = sgdef.DefServerStatusInit
 	globalLogger.console = isConsole
 
@@ -66,12 +66,19 @@ func NewLogger(strLevel string, pathname string, flag int, isConsole bool) error
 
 func (logger *logger) Close() {
 	logger.status = sgdef.DefServerStatusStop
-	<-logger.chanStopFlag
-	close(logger.chanStopFlag)
-	if logger.baseFile != nil {
-		logger.baseFile.Close()
+
+	for {
+		if len(logger.chanBuff) == 0 {
+			logger.onceClose.Do(func() {
+				close(logger.chanBuff)
+				if logger.baseFile != nil {
+					logger.baseFile.Close()
+				}
+				logger.baseFile = nil
+			})
+			break
+		}
 	}
-	logger.baseFile = nil
 }
 
 func IsStop() bool {
@@ -159,16 +166,15 @@ type logData struct {
 }
 
 type logger struct {
-	level        int
-	baseFile     *os.File
-	console      bool
-	dt           *sgtime.DateTime
-	pathname     string
-	flag         int
-	chanBuff     chan *logData
-	onceClose    sync.Once
-	status       sgdef.DefServerStatus
-	chanStopFlag chan bool
+	level     int
+	baseFile  *os.File
+	console   bool
+	dt        *sgtime.DateTime
+	pathname  string
+	flag      int
+	chanBuff  chan *logData
+	onceClose sync.Once
+	status    sgdef.DefServerStatus
 }
 
 func newLogData(lv int, a ...interface{}) *logData {
@@ -177,11 +183,6 @@ func newLogData(lv int, a ...interface{}) *logData {
 	logData.dt = sgtime.New()
 	logData.data = fmt.Sprintln(a...)
 	return logData
-}
-
-func (logger *logger) initChan() {
-	logger.chanBuff = make(chan *logData, 1000)
-	logger.chanStopFlag = make(chan bool)
 }
 
 func (logger *logger) addLogData(logData *logData) {
@@ -267,16 +268,9 @@ func (logger *logger) createNewFile(now *sgtime.DateTime) {
 
 func (logger *logger) loopWriteLog() {
 	logger.status = sgdef.DefServerStatusRunning
-	for {
-		logData := <-logger.chanBuff
+
+	for logData := range logger.chanBuff {
 		logger.checkAndSwapLogger()
 		logger.write(logData)
-		if logger.status == sgdef.DefServerStatusStop && len(logger.chanBuff) <= 0 {
-			logger.onceClose.Do(func() {
-				close(logger.chanBuff)
-				logger.chanStopFlag <- true
-			})
-			return
-		}
 	}
 }
