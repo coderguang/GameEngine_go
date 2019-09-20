@@ -14,6 +14,16 @@ func init() {
 	serverList = []Server{}
 }
 
+func getServerInstance(serverType ServerType) Server {
+	switch serverType {
+	case ServerTypeLog:
+		return new(ServerLog)
+	case ServerTypeMail:
+		return new(ServerMail)
+	}
+	return nil
+}
+
 func StartServer(serverType ServerType, a ...interface{}) {
 
 	for _, v := range serverList {
@@ -21,16 +31,16 @@ func StartServer(serverType ServerType, a ...interface{}) {
 			sglog.Error("server had already running,type is", v.Type())
 			return
 		}
-
 	}
 
 	startFlag := make(chan bool)
-	switch serverType {
-	case ServerTypeLog:
-		server := new(ServerLog)
-		go server.Start(startFlag, a...)
-		addServerToList(startFlag, server)
+	server := getServerInstance(serverType)
+	if server == nil {
+		sglog.Error("unknow server type,type is ", serverType)
+		return
 	}
+	go server.Start(startFlag, a...)
+	addServerToList(startFlag, server)
 	return
 }
 
@@ -38,6 +48,7 @@ func StopServer(serverType ServerType, a ...interface{}) error {
 	stopFlag := make(chan bool)
 	defer func() {
 		<-stopFlag
+		sglog.Info("server stop ok,type=", serverType)
 	}()
 
 	serverTypeStr := strconv.Itoa(int(serverType))

@@ -64,12 +64,12 @@ func NewLogger(strLevel string, pathname string, flag int, isConsole bool) error
 
 }
 
-func (logger *logger) Close() {
+func (logger *logger) close() {
 	logger.status = sgdef.DefServerStatusStop
 
 	for {
 		if len(logger.chanBuff) == 0 {
-			logger.onceClose.Do(func() {
+			logger.onceCloseFunc.Do(func() {
 				close(logger.chanBuff)
 				if logger.baseFile != nil {
 					logger.baseFile.Close()
@@ -103,7 +103,7 @@ func IsRunning() bool {
 
 func CloseGlobalLogger() {
 	if globalLogger != nil {
-		globalLogger.Close()
+		globalLogger.close()
 	}
 }
 
@@ -166,15 +166,15 @@ type logData struct {
 }
 
 type logger struct {
-	level     int
-	baseFile  *os.File
-	console   bool
-	dt        *sgtime.DateTime
-	pathname  string
-	flag      int
-	chanBuff  chan *logData
-	onceClose sync.Once
-	status    sgdef.DefServerStatus
+	level         int
+	baseFile      *os.File
+	console       bool
+	dt            *sgtime.DateTime
+	pathname      string
+	flag          int
+	chanBuff      chan *logData
+	onceCloseFunc sync.Once
+	status        sgdef.DefServerStatus
 }
 
 func newLogData(lv int, a ...interface{}) *logData {
