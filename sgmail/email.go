@@ -3,7 +3,6 @@ package sgmail
 import (
 	"crypto/tls"
 	"errors"
-	"log"
 	"net"
 	"net/smtp"
 	"strings"
@@ -154,7 +153,7 @@ func (sender *mailSender) sendMailUsingTLS(data *mailData) error {
 	if sender.auth != nil {
 		if ok, _ := c.Extension("AUTH"); ok {
 			if err = c.Auth(sender.auth); err != nil {
-				log.Println("Error during AUTH", err)
+				sglog.Error("Error during AUTH", err)
 				return err
 			}
 		}
