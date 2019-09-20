@@ -2,6 +2,7 @@ package sgserver
 
 import (
 	"errors"
+	"log"
 	"strconv"
 
 	"github.com/coderguang/GameEngine_go/sglog"
@@ -15,14 +16,11 @@ func init() {
 
 func StartServer(serverType ServerType, a ...interface{}) {
 	startFlag := make(chan bool)
-	defer func() {
-		<-startFlag
-	}()
 	switch serverType {
 	case ServerTypeLog:
 		server := new(ServerLog)
 		go server.Start(startFlag, a...)
-		addServerToList(server)
+		addServerToList(startFlag, server)
 	}
 	return
 }
@@ -67,6 +65,16 @@ func StopAllServer() {
 	}
 }
 
-func addServerToList(server Server) {
-	serverList = append(serverList, server)
+func addServerToList(startFlag chan bool, server Server) {
+	startResult := <-startFlag
+	if startResult {
+		serverList = append(serverList, server)
+	} else {
+		if server.Type() != ServerTypeLog {
+			sglog.Error("server start error,please check,type=", server.Type())
+		} else {
+			log.Println("log server start error,please check")
+		}
+		panic(errors.New("server start error type is " + strconv.Itoa(int(server.Type()))))
+	}
 }

@@ -11,8 +11,9 @@ type ServerLog struct {
 
 func (server *ServerLog) Start(startFlag chan bool, a ...interface{}) {
 
+	startResult := false
 	defer func() {
-		startFlag <- true
+		startFlag <- startResult
 	}()
 
 	level := "debug"
@@ -61,16 +62,19 @@ func (server *ServerLog) Start(startFlag chan bool, a ...interface{}) {
 	}
 	sglog.Info("log server init complete,path=", path, "level=", level)
 
+	startResult = true
 }
 
 func (server *ServerLog) Stop(stopFlag chan bool, a ...interface{}) {
 
+	stopResult := false
 	defer func() {
-		stopFlag <- true
+		stopFlag <- stopResult
 	}()
-
 	sglog.Info("logger stop....")
 	sglog.CloseGlobalLogger()
+
+	stopResult = true
 }
 
 func (server *ServerLog) Type() ServerType {
@@ -82,5 +86,5 @@ func (server *ServerLog) IsStop() bool {
 }
 
 func (server *ServerLog) IsRunning() bool {
-	return true
+	return sglog.IsRunning()
 }
