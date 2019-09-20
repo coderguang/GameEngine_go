@@ -21,7 +21,7 @@ import (
 
 func main() {
 
-	sgcfg.SetServerCfgDir("../globalConfig/server_config/")
+	sgcfg.SetServerCfgDir("./../globalConfig/server_config/")
 
 	// defer func() {
 
