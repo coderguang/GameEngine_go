@@ -10,10 +10,12 @@ func init() {
 var (
 	MailCfgFile  string
 	MySQLCfgFile string
+	MongoCfgFile string
 )
 
 func SetServerCfgDir(dir string) {
 	serverCfgDir = dir
 	MailCfgFile = serverCfgDir + "mail.json"
 	MySQLCfgFile = serverCfgDir + "mysql.json"
+	MongoCfgFile = serverCfgDir + "mongo.json"
 }
