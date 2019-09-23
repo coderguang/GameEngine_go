@@ -9,6 +9,12 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+type Animal struct {
+	ID   int64
+	Name string `gorm:"default:'galeone'"`
+	Age  int64
+}
+
 func Test_GORM(t *testing.T) {
 
 	sgcfg.SetServerCfgDir("./../../../globalConfig/server_config/")
@@ -27,5 +33,16 @@ func Test_GORM(t *testing.T) {
 
 	defer db.Close()
 
-	t.Log("test ok)
+	an := Animal{Age: 99, Name: "tt"}
+
+	if !db.HasTable(Animal{}) {
+		db.CreateTable(Animal{})
+		db.Create(&an)
+	}
+
+	ans := []Animal{}
+
+	db.Where("age<?", 40).Find(&ans)
+
+	t.Log("test ok")
 }
