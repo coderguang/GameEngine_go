@@ -220,10 +220,7 @@ func getLevelStrRaw(level int) string {
 
 func getFileName() string {
 	now := sgtime.New()
-	str := fmt.Sprintf("%d%02d%02d",
-		now.Year(),
-		now.Month(),
-		now.Day())
+	str := sgtime.YearString(now) + sgtime.MonthString(now) + sgtime.DayString(now)
 	str += ".log"
 	return str
 }

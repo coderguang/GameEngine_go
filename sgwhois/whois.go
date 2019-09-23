@@ -125,8 +125,6 @@ func ParseWhois(info *Whois) {
 		sglog.Info("fail to check domain:", info.Domain)
 		return
 	}
-
-	//fmt.Printf("=============rawData=============:\n%s\n====================\n", info.Raw)
 	switch info.Zone {
 	case "com", "net":
 		{

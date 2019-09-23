@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/coderguang/GameEngine_go/sgmail"
 	"github.com/coderguang/GameEngine_go/sgthread"
 
 	"github.com/coderguang/GameEngine_go/sgcfg"
@@ -37,11 +36,11 @@ func main() {
 
 	sgthread.SleepBySecond(2)
 
-	tolist := []string{"royalchen@royalchen.com"}
-	for i := 0; i < 1; i++ {
-		sgmail.SendMail("GameEngine_go", tolist, "mail from GameEngine go")
-		sgthread.SleepBySecond(10)
-	}
+	// tolist := []string{"royalchen@royalchen.com"}
+	// for i := 0; i < 1; i++ {
+	// 	sgmail.SendMail("GameEngine_go", tolist, "mail from GameEngine go")
+	// 	sgthread.SleepBySecond(10)
+	// }
 
 	//sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./../log/", log.LstdFlags, "wtwer")
 
