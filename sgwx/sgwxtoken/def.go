@@ -1,6 +1,8 @@
 package sgwxtoken
 
 import (
+	"strconv"
+
 	"github.com/coderguang/GameEngine_go/sgtime"
 )
 
@@ -12,10 +14,11 @@ type SWxToken struct {
 	AccessToken string
 }
 
-func (data *SWxToken) String() {
+func (data *SWxToken) String() string {
 	str := "\nAppid:" + data.Appid +
 		"\nSecret:" + data.Secret +
 		"\nRequireDt:" + sgtime.NormalString(data.RequireDt) +
-		"\nExpiryDt:" + sgtime.NormalString(data.ExpiryDt) +
+		"\nExpiryDt:" + strconv.Itoa(data.ExpiryDt) +
 		"\nAccessToken:" + data.AccessToken
+	return str
 }

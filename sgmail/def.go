@@ -2,6 +2,8 @@ package sgmail
 
 import (
 	"strings"
+
+	"github.com/coderguang/GameEngine_go/sgcfg"
 )
 
 const content_type = "Content-Type: text/plain; charset=UTF-8"
@@ -20,6 +22,12 @@ type mailData struct {
 	subject    string
 	toMailList []string
 	body       string
+}
+
+func ReadCfg(filename string) (*MailCfg, error) {
+	cfg := new(MailCfg)
+	err := sgcfg.ReadCfg(filename, cfg)
+	return cfg, err
 }
 
 func (data *mailData) String() string {
