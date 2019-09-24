@@ -19,3 +19,7 @@ func SetServerCfgDir(dir string) {
 	MySQLCfgFile = serverCfgDir + "mysql.json"
 	MongoCfgFile = serverCfgDir + "mongo.json"
 }
+
+func GetServerCfgDir() string {
+	return serverCfgDir
+}
