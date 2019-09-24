@@ -11,6 +11,6 @@ func Open(cfg *MySQLCfg) (*gorm.DB, error) {
 }
 
 func getDbURL(cfg *MySQLCfg) string {
-	dsn := cfg.User + ":" + cfg.Pwd + "@tcp(" + cfg.URL + ":" + cfg.Port + ")/" + cfg.Port + "?charset=" + cfg.Charset
+	dsn := cfg.User + ":" + cfg.Pwd + "@tcp(" + cfg.URL + ":" + cfg.Port + ")/" + cfg.DbName + "?charset=" + cfg.Charset + "&parseTime=True&loc=Local"
 	return dsn
 }
