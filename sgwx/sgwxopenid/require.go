@@ -3,6 +3,7 @@ package sgwxopenid
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -35,15 +36,16 @@ func GetOpenIdFromWx(appid string, secret string, code string) (string, error) {
 		return "", err
 	}
 	if _, ok := result[sgwxdef.WX_ERROR_CODE_STR]; ok {
-		sglog.Error("error openid,code=", result[sgwxdef.WX_ERROR_CODE_STR], ",errmsg=", result[sgwxdef.WX_ERROR_CODE_STR])
-		return "", err
+		sglog.Error("error openid,code=", result[sgwxdef.WX_ERROR_CODE_STR], ",errmsg=", result[sgwxdef.WX_ERROR_MSG_STR])
+		errmsgV, _ := result[sgwxdef.WX_ERROR_MSG_STR].(string)
+		return "", errors.New(errmsgV)
 	}
 
 	tmpOpenid := result[sgwxdef.WX_OPEN_ID_STR]
 	tmpOpenidValue, ok := tmpOpenid.(string)
 	if !ok {
 		sglog.Error("parse tmp_openid failed,tmp_openid=", tmpOpenid)
-		return "", err
+		return "", errors.New("parse tmp_openid failed")
 	}
 	return tmpOpenidValue, nil
 }
