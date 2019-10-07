@@ -25,6 +25,8 @@ const (
 	FORMAT_TIME_HOUR            = "15"
 	FORMAT_TIME_MINUTE          = "04"
 	FORMAT_TIME_SECOND          = "05"
+	FORMAT_TIME_YEAR_MONTH      = "200601"
+	FORMAT_TIME_YEAR_MONTH_DAY  = "20060102"
 )
 
 type DateTime = time.Time
@@ -38,6 +40,10 @@ func New() *DateTime {
 
 func TransfromTimeToDateTime(t time.Time) *DateTime {
 	return &t
+}
+
+func TransformDateTimeToTime(t *DateTime) time.Time {
+	return *t
 }
 
 func InitTimeLocation(l string) {
@@ -97,6 +103,14 @@ func MinuteString(dateTime *DateTime) string {
 func SecondString(dateTime *DateTime) string {
 	str_time := dateTime.Format(FORMAT_TIME_SECOND)
 	return str_time
+}
+
+func YMDString(dateTime *DateTime) string {
+	return dateTime.Format(FORMAT_TIME_YEAR_MONTH_DAY)
+}
+
+func YMString(dateTime *DateTime) string {
+	return dateTime.Format(FORMAT_TIME_YEAR_MONTH)
 }
 
 func ParseInLocation(format string, timestr string) (DateTime, error) {
