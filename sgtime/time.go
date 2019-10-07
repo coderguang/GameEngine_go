@@ -36,6 +36,10 @@ func New() *DateTime {
 	return &now
 }
 
+func TransfromTimeToDateTime(t time.Time) *DateTime {
+	return &t
+}
+
 func InitTimeLocation(l string) {
 	tmp, err := time.LoadLocation(l)
 	if err != nil {
