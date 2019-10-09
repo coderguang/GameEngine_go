@@ -19,6 +19,7 @@ GameEngine_go
 **[wxTokenCenter](https://github.com/coderguang/wxTokenCenter)** | wx token manager tool | v1.0.0
 **[xcxYaohaoServer](https://github.com/coderguang/xcxYaohaoServer)** | 汽车摇号中签数据自动采集工具 | v1.0.0
 **[xcxYaohaoNoticeServer](https://github.com/coderguang/xcxYaohaoNoticeServer)** | 汽车摇号中签数据短信通知工具 | v1.0.0
+**[xcxYaohao](https://github.com/coderguang/xcxYaohao)** | 汽车摇号中签数据自动采集工具+短信通知工具 | v1.7.0
 
 ## About me
 
