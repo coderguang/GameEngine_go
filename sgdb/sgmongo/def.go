@@ -14,6 +14,6 @@ type MongoCfg struct {
 
 func ReadCfg(filename string) (*MongoCfg, error) {
 	cfg := new(MongoCfg)
-	err := sgcfg.ReadCfg(sgcfg.MongoCfgFile, cfg)
+	err := sgcfg.ReadCfg(filename, cfg)
 	return cfg, err
 }
