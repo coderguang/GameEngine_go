@@ -16,14 +16,14 @@ func CheckFileMaxSize(w http.ResponseWriter, r *http.Request, maxSize int64) err
 	return nil
 }
 
-func CheckIsAllowFiles(w http.ResponseWriter, r *http.Request, filelist []string) (multipart.File, string, error) {
+func CheckIsAllowForm(w http.ResponseWriter, r *http.Request, filelist []string) (multipart.File, string, error) {
 	for _, v := range filelist {
 		file, _, err := r.FormFile(v)
 		if err == nil {
 			return file, v, nil
 		}
 	}
-	return nil, "", errors.New("INVALID_FILE_UPLOAD no support upload file type")
+	return nil, "", errors.New("INVALID_FILE_UPLOAD no support upload file form")
 }
 
 func CheckFileTypeMatch(w http.ResponseWriter, r *http.Request, fileType string, file multipart.File) ([]byte, error) {
@@ -36,4 +36,14 @@ func CheckFileTypeMatch(w http.ResponseWriter, r *http.Request, fileType string,
 		return fileBytes, errors.New("INVALID_FILE_TYPE not match with" + fileType)
 	}
 	return fileBytes, nil
+}
+
+func GetFileDetectContentType(file multipart.File) (string, error) {
+	buffer := make([]byte, 512)
+	_, err := file.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	contentType := http.DetectContentType(buffer)
+	return contentType, nil
 }
