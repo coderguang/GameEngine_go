@@ -98,3 +98,18 @@ func GetPath(path string) (string, error) {
 	}
 	return "", errors.New("error path,path=" + path)
 }
+
+func WriteFile(path string, filename string, datas []byte) (int, string, error) {
+	AutoMkDir(path)
+	finalFileName := path + filename
+	newFile, err := Create(finalFileName)
+	if err != nil {
+		return 0, finalFileName, err
+	}
+	defer newFile.Close()
+	writeNum, err := newFile.Write(datas)
+	if err != nil || newFile.Close() != nil {
+		return writeNum, finalFileName, err
+	}
+	return writeNum, finalFileName, nil
+}
