@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
 
 	"github.com/coderguang/GameEngine_go/sglog"
+	"github.com/coderguang/GameEngine_go/sgstring"
 )
 
 //formName is for server to get file by r.FormFile(formName)
@@ -55,4 +57,57 @@ func PostFile(filename string, target_url string, formName string) (*http.Respon
 
 	return http.DefaultClient.Do(req)
 
+}
+
+func PostMultiFormFile(url string, formMap map[string]string, values map[string]string) (*http.Response, error) {
+
+	body_buf := bytes.NewBufferString("")
+	body_writer := multipart.NewWriter(body_buf)
+	randomStr := sgstring.RandStringAndNumRunes(15)
+	body_writer.SetBoundary(randomStr)
+
+	//field
+
+	if values != nil {
+		for k, v := range values {
+			body_writer.WriteField(k, v)
+		}
+	}
+
+	//form data
+	if formMap != nil {
+		for k, v := range formMap {
+			_, err := body_writer.CreateFormFile(k, v)
+			if err != nil {
+				sglog.Error("PostMultiFormFile create form file error,key:", k, ",file:", v, err)
+				return nil, err
+			}
+			fileBytes, err := ioutil.ReadFile(v)
+			if err != nil {
+				sglog.Error("PostMultiFormFile read file error key:", k, ",file:", v, err)
+				return nil, err
+			}
+			_, err = body_buf.Write(fileBytes)
+			if err != nil {
+				sglog.Error("PostMultiFormFile write file error key:", k, ",file:", v, err)
+				return nil, err
+			}
+		}
+	}
+
+	body_writer.Close()
+
+	req_reader := io.MultiReader(body_buf)
+	req, err := http.NewRequest("POST", url, req_reader)
+	if err != nil {
+		sglog.Error("PostMultiFormFile create request error", err)
+		return nil, err
+	}
+	// 添加Post头
+	// req.Header.Set("Connection", "close")
+	// req.Header.Set("Pragma", "no-cache")
+	req.Header.Set("Content-Type", body_writer.FormDataContentType())
+	req.ContentLength = int64(body_buf.Len())
+
+	return http.DefaultClient.Do(req)
 }
