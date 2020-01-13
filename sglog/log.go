@@ -266,8 +266,21 @@ func (logger *logger) createNewFile(now *sgtime.DateTime) {
 func (logger *logger) loopWriteLog() {
 	logger.status = sgdef.DefServerStatusRunning
 
-	for logData := range logger.chanBuff {
-		logger.checkAndSwapLogger()
-		logger.write(logData)
+	// for logData := range logger.chanBuff {
+	// 	logger.checkAndSwapLogger()
+	// 	logger.write(logData)
+	// }
+
+	for {
+		select {
+		case logData, ok := <-logger.chanBuff:
+			if ok {
+				logger.checkAndSwapLogger()
+				logger.write(logData)
+			} else {
+				fmt.Println("get logData error")
+			}
+		}
 	}
+
 }
