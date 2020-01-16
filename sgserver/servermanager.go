@@ -82,6 +82,8 @@ func StopAllServer() {
 		}
 	}
 
+	sgthread.SleepBySecond(2)
+
 	for _, v := range serverList {
 		if v.Type() == ServerTypeLog {
 			if err := StopServer(v.Type()); err != nil {

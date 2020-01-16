@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/coderguang/GameEngine_go/sgdef"
@@ -65,20 +64,15 @@ func NewLogger(strLevel string, pathname string, flag int, isConsole bool) error
 }
 
 func (logger *logger) close() {
-	logger.status = sgdef.DefServerStatusStop
-
-	for {
-		if len(logger.chanBuff) == 0 {
-			logger.onceCloseFunc.Do(func() {
-				close(logger.chanBuff)
-				if logger.baseFile != nil {
-					logger.baseFile.Close()
-				}
-				logger.baseFile = nil
-			})
-			break
-		}
+	if logger.status == sgdef.DefServerStatusStop {
+		return
 	}
+	logger.status = sgdef.DefServerStatusStop
+	close(logger.chanBuff)
+	if logger.baseFile != nil {
+		logger.baseFile.Close()
+	}
+	logger.baseFile = nil
 }
 
 func IsStop() bool {
@@ -166,15 +160,14 @@ type logData struct {
 }
 
 type logger struct {
-	level         int
-	baseFile      *os.File
-	console       bool
-	dt            *sgtime.DateTime
-	pathname      string
-	flag          int
-	chanBuff      chan *logData
-	onceCloseFunc sync.Once
-	status        sgdef.DefServerStatus
+	level    int
+	baseFile *os.File
+	console  bool
+	dt       *sgtime.DateTime
+	pathname string
+	flag     int
+	chanBuff chan *logData
+	status   sgdef.DefServerStatus
 }
 
 func newLogData(lv int, a ...interface{}) *logData {
@@ -265,12 +258,6 @@ func (logger *logger) createNewFile(now *sgtime.DateTime) {
 
 func (logger *logger) loopWriteLog() {
 	logger.status = sgdef.DefServerStatusRunning
-
-	// for logData := range logger.chanBuff {
-	// 	logger.checkAndSwapLogger()
-	// 	logger.write(logData)
-	// }
-
 	for {
 		select {
 		case logData, ok := <-logger.chanBuff:
@@ -278,7 +265,8 @@ func (logger *logger) loopWriteLog() {
 				logger.checkAndSwapLogger()
 				logger.write(logData)
 			} else {
-				fmt.Println("get logData error")
+				fmt.Println("logger goroutine exit.")
+				return
 			}
 		}
 	}
