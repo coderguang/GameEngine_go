@@ -1,0 +1,5 @@
+package sgserver
+
+func DealRecover() {
+	
+}
