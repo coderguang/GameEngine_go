@@ -11,7 +11,7 @@ import (
 	"github.com/coderguang/GameEngine_go/sgwx/sgwxdef"
 )
 
-func GetOpenIdFromWx(appid string, secret string, code string) (string, error) {
+func GetOpenIdFromServer(appid string, secret string, code string) (string, error) {
 	//GET https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
 	url := "https://developer.toutiao.com/api/apps/jscode2session?appid=" + appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code"
 	resp, err := http.Get(url)
