@@ -35,14 +35,17 @@ func GetOpenIdFromServer(appid string, secret string, code string) (string, erro
 		sglog.Error(" QQjson parse failed,str:", str, ",err:", err)
 		return "", err
 	}
-	errorcode, ok := result[sgwxdef.WX_ERROR_CODE_STR]
-	if ok {
-		errorcodeValue := errorcode.(int)
-		if errorcodeValue != 0 {
-			sglog.Error("QQ error openid,code=", result[sgwxdef.WX_ERROR_CODE_STR], ",errmsg=", result[sgwxdef.WX_ERROR_MSG_STR])
-			errmsgV, _ := result[sgwxdef.WX_ERROR_MSG_STR].(string)
-			return "", errors.New(errmsgV)
-		}
+	errorcode := result[sgwxdef.WX_ERROR_CODE_STR]
+	errorcodeValue, errex := errorcode.(json.Number)
+	if !errex {
+		sglog.Info("errcode err")
+		return "", errors.New("QQ errorcode transform error")
+	}
+	//sglog.Info("errcode:", errorcodeValue)
+	if errorcodeValue != "0" {
+		sglog.Error("QQ error openid,code=", result[sgwxdef.WX_ERROR_CODE_STR], ",errmsg=", result[sgwxdef.WX_ERROR_MSG_STR])
+		errmsgV, _ := result[sgwxdef.WX_ERROR_MSG_STR].(string)
+		return "", errors.New(errmsgV)
 	}
 
 	tmpOpenid := result[sgwxdef.WX_OPEN_ID_STR]
