@@ -113,3 +113,19 @@ func WriteFile(path string, filename string, datas []byte) (int, string, error) 
 	}
 	return writeNum, finalFileName, nil
 }
+
+func GetAllFile(pathname string) ([]string, error) {
+	fileList := []string{}
+	rd, err := ioutil.ReadDir(pathname)
+	for _, fi := range rd {
+		if fi.IsDir() {
+			dirlist, _ := GetAllFile(pathname + fi.Name() + "/")
+			for _, v := range dirlist {
+				fileList = append(fileList, v)
+			}
+		} else {
+			fileList = append(fileList, pathname+fi.Name())
+		}
+	}
+	return fileList, err
+}
