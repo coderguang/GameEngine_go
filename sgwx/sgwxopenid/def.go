@@ -5,13 +5,15 @@ import (
 )
 
 type SWxOpenid struct {
-	Code   string
-	Openid string
-	Time   *sgtime.DateTime
+	Platform string
+	Code     string
+	Openid   string
+	Time     *sgtime.DateTime
 }
 
 func (data *SWxOpenid) String() string {
-	str := "\ncode:" + data.Code +
+	str := "\nplatform:" + data.Platform +
+		"\ncode:" + data.Code +
 		"\nopenid:" + data.Openid +
 		"\ndt:" + sgtime.NormalString(data.Time)
 	return str

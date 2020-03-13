@@ -10,13 +10,15 @@ type SByteDanceAppidCfg struct {
 }
 
 type SByteDanceOpenid struct {
-	Code   string
-	Openid string
-	Time   *sgtime.DateTime
+	Platform string
+	Code     string
+	Openid   string
+	Time     *sgtime.DateTime
 }
 
 func (data *SByteDanceOpenid) String() string {
-	str := "\ncode:" + data.Code +
+	str := "\nplatform:" + data.Platform +
+		"\ncode:" + data.Code +
 		"\nopenid:" + data.Openid +
 		"\ndt:" + sgtime.NormalString(data.Time)
 	return str
