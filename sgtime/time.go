@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	globalTimeLocation, _ = time.LoadLocation("PRC")
+	globalTimeLocation = time.FixedZone("CST", 8*3600)
 }
 
 var globalTimeLocation *time.Location
