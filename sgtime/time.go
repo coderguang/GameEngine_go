@@ -56,8 +56,6 @@ func InitTimeLocation(l string) {
 
 func GetTotalSecond(dateTime *DateTime) int64 {
 	timestamp := dateTime.Unix()
-	_, offset := dateTime.Zone()
-	timestamp += int64(offset)
 	return timestamp //时区
 }
 
