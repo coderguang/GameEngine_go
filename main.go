@@ -3,7 +3,10 @@ package main
 import (
 	"log"
 
+	"github.com/coderguang/GameEngine_go/sgfile"
+	"github.com/coderguang/GameEngine_go/sglog"
 	"github.com/coderguang/GameEngine_go/sgthread"
+	"github.com/coderguang/GameEngine_go/sgtts/wordToVoice"
 
 	"github.com/coderguang/GameEngine_go/sgcfg"
 
@@ -16,7 +19,7 @@ import (
 
 func main() {
 
-	sgcfg.SetServerCfgDir("./../globalConfig/server_config/")
+	sgcfg.SetServerCfgDir("./../../globalConfig/server_config/")
 
 	// defer func() {
 
@@ -32,7 +35,23 @@ func main() {
 
 	sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./../log/", log.LstdFlags, true)
 
-	sgserver.StartServer(sgserver.ServerTypeMail)
+	//sgserver.StartServer(sgserver.ServerTypeMail)
+
+	param := wordToVoice.NewParam()
+
+	voiceBytes, err := wordToVoice.WorldToVoice("简单测试", "wss://tts-api.xfyun.cn/v2/tts", "app_id", "apikey", "apsec", param)
+
+	if err != nil {
+		sglog.Info("world to voice error")
+		sgthread.SleepBySecond(2)
+	}
+
+	num, filename, err := sgfile.WriteFile("./data/", "tmp.mp3", voiceBytes)
+	if err != nil {
+		sglog.Error("write file error", err)
+		sgthread.SleepBySecond(2)
+	}
+	sglog.Debug("write file ok,num:", num, filename)
 
 	sgthread.SleepBySecond(2)
 
