@@ -20,7 +20,7 @@ func Test_Mongo(t *testing.T) {
 		t.Error("init db config error")
 	}
 
-	session, err := NewSesssion(cfg)
+	session, err := NewSessionByMgo(cfg)
 	if err != nil {
 		t.Error("link to mongo db error")
 	}

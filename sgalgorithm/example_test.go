@@ -11,7 +11,7 @@ import (
 )
 
 func TestPermutation(t *testing.T) {
-	sgserver.StartLogServer("debug", "../../log/", log.LstdFlags, true)
+	sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./../log/", log.LstdFlags, true)
 
 	src := []string{"1", "2", "3", "4"}
 	result := []string{}
@@ -24,14 +24,14 @@ func TestPermutation(t *testing.T) {
 		t.Error("result error")
 	}
 
-	sgserver.StopLogServer()
+	sgserver.StopAllServer()
 
 	t.Log("test permutation ok")
 
 }
 
 func BenchmarkPermutation(b *testing.B) {
-	sgserver.StartLogServer("debug", "../../log/", log.LstdFlags, true)
+	sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./../log/", log.LstdFlags, true)
 
 	src := []string{}
 	for i := 0; i < 100; i++ {
@@ -57,6 +57,6 @@ func BenchmarkPermutation(b *testing.B) {
 		}
 	}
 
-	sgserver.StopLogServer()
+	sgserver.StopAllServer()
 
 }

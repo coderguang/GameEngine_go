@@ -10,8 +10,7 @@ import (
 func TestCmd(t *testing.T) {
 
 	//StartCmdWaitInputLoop()
-
-	sgserver.StartLogServer("debug", "../../log/", log.LstdFlags, true)
+	sgserver.StartServer(sgserver.ServerTypeLog, "debug", "./../log/", log.LstdFlags, true)
 
 	printHelp()
 	StartCmdWaitInput()
