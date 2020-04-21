@@ -56,8 +56,8 @@ func InitTimeLocation(l string) {
 
 func GetTotalSecond(dateTime *DateTime) int64 {
 	timestamp := dateTime.Unix()
-	_, offset := dateTime.Zone()
-	timestamp += int64(offset)
+	//_, offset := dateTime.Zone()
+	//timestamp += int64(offset)
 	return timestamp //时区
 }
 
@@ -120,4 +120,13 @@ func ParseInLocation(format string, timestr string) (DateTime, error) {
 
 func GetTimeZone() *time.Location {
 	return globalTimeLocation
+}
+
+func GetNextDay(now int64, hour int, min int, sec int) int64 {
+	if 0 == now {
+		nowDt := New()
+		now = GetTotalSecond(nowDt)
+	}
+
+	return 0
 }
